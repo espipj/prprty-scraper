@@ -390,3 +390,347 @@ export interface VirtualTour {
   videoId: null;
   provider: string;
 }
+
+// Search results
+
+export interface SearchResult {
+  properties: PropertyListing[];
+  resultCount: string;
+  searchParametersDescription: string;
+  radiusOptions: Option[];
+  priceOptions: Option[];
+  bedroomOptions: Option[];
+  addedToSiteOptions: Option[];
+  mustHaveOptions: Option[];
+  dontShowOptions: Option[];
+  furnishOptions: any[];
+  letTypeOptions: any[];
+  sortOptions: Option[];
+  staticMapUrl: string;
+  shortLocationDescription: string;
+  timestamp: number;
+  bot: boolean;
+  deviceType: string;
+  propertySchema: PropertyListing;
+  sidebarModel: SidebarModel;
+  seoModel: SEOModel;
+  mapViewUrl: string;
+  legacyUrl: string;
+  listViewUrl: string;
+  pageTitle: string;
+  metaDescription: string;
+  recentSearchModel: RecentSearchModel;
+  maxCardsPerPage: number;
+  countryCode: string;
+  countryId: number;
+  currencyCodeOptions: Option[];
+  areaSizeUnitOptions: AreaSizeUnitOptionElement[];
+  sizeOptions: AreaSizeUnitOptionElement[];
+  priceTypeOptions: AreaSizeUnitOptionElement[];
+  showFeaturedAgent: boolean;
+  showNewDrawASearch: boolean;
+  commercialChannel: boolean;
+  disambiguationPagePath: string;
+  dfpModel: DfpModel;
+  noResultsModel: NoResultsModel;
+  urlPath: string;
+  tileGeometry: null;
+  comscore: string;
+  cookiePolicies: CookiePolicies;
+  formattedExchangeRateDate: string;
+  authenticated: boolean;
+  applicationProperties: ApplicationProperties;
+  termsOfUse: string;
+  location: SearchResultLocation;
+  featureSwitchStateForUser: FeatureSwitchStateForUser;
+  searchParameters: SearchParameters;
+  pagination: Pagination;
+  locationBranchSearchPath: null;
+}
+
+export interface Option {
+  value: null | string;
+  description: string;
+}
+
+export interface ApplicationProperties {
+  "media.server.host": string;
+  "location.product.web.server.host": string;
+  "location.product.web.server.port": string;
+  "publicsite.server.host": string;
+  "publicsite.server.port": string;
+  "location.search.server.host": string;
+  "location.search.server.port": string;
+  "my.rightmove.web.server.host": string;
+  "my.rightmove.web.server.port": string;
+  "analytics.typeform.url": string;
+  "clickstream.enabled": boolean;
+  "gtm.enabled": boolean;
+  "gtm.id": string;
+  "gtm.auth": string;
+  "gtm.preview": string;
+  "comscore.enabled": boolean;
+  "info.build.version": string;
+  "metadata.service.url": string;
+  "sidebar.mpu.adUnitTimeout": string;
+  "sidebar.mpu.adUnitPath": string;
+  "dfp.interstitial1.adUnitPath": string;
+  "dfp.interstitial2.adUnitPath": string;
+  "dfp.interstitial3.adUnitPath": string;
+  "dfp.overseas.interstitial1.adUnitPath": string;
+  "dfp.overseas.interstitial2.adUnitPath": string;
+  "dfp.overseas.interstitial3.adUnitPath": string;
+  "dfp.sold-by-me.interstitial.adUnitPath": string;
+  "dfp.sold-by-me.interstitial.commercial-sales.adUnitPath": string;
+  "dfp.sold-by-me.interstitial.commercial-lettings.adUnitPath": string;
+  "dfp.sidebar.uk-credit-check-sponsorship.adUnitPath": string;
+  "optimize.map.pins": boolean;
+  rightmovePlusLandingPageUrl: string;
+  "seo.global.consumerFooter.url": string;
+  "seo.global.consumerHeader.url": string;
+  recaptchaEnabled: boolean;
+  recaptchaSiteKey: string;
+  labsHostname: string;
+}
+
+export interface AreaSizeUnitOptionElement {
+  value: string;
+  description: string;
+  abbreviation: string;
+}
+
+export interface CookiePolicies {
+  functional: boolean;
+  targeting: boolean;
+  "strictly necessary": boolean;
+}
+
+export interface DfpModel {
+  sidebarSlots: SidebarSlot[];
+  targeting: Targeting[];
+}
+
+export interface SidebarSlot {
+  id: string;
+  adUnitPath: string;
+  sizes: Array<number[]>;
+  mappings: any[];
+}
+
+export interface Targeting {
+  key: string;
+  value: string;
+}
+
+export interface FeatureSwitchStateForUser {
+  individualFeatureSwitchStates: IndividualFeatureSwitchState[];
+  featureUser: FeatureUser;
+}
+
+export interface FeatureUser {
+  uniqueIdentifier: string;
+}
+
+export interface IndividualFeatureSwitchState {
+  label: string;
+  state: string;
+  shouldLog: boolean;
+}
+
+export interface SearchResultLocation {
+  id: number;
+  displayName: string;
+  shortDisplayName: string;
+  locationType: string;
+  listingCurrency: string;
+}
+
+export interface NoResultsModel {
+  suggestionPods: any[];
+  intelligentSuggestion: null;
+}
+
+export interface Pagination {
+  total: number;
+  options: Option[];
+  first: string;
+  last: string;
+  next: string;
+  page: string;
+}
+
+export interface PropertyListing {
+  id: number;
+  bedrooms: number;
+  bathrooms: number;
+  numberOfImages: number;
+  numberOfFloorplans: number;
+  numberOfVirtualTours: number;
+  summary: null | string;
+  displayAddress: null | string;
+  countryCode: null | string;
+  location: PropertySchemaLocation;
+  propertyImages: PropertyImages;
+  propertySubType: null | string;
+  listingUpdate: ListingUpdate;
+  premiumListing: boolean;
+  featuredProperty: boolean;
+  price: Price;
+  customer: Customer;
+  distance: null;
+  transactionType: null | string;
+  productLabel: ProductLabel;
+  commercial: boolean;
+  development: boolean;
+  residential: boolean;
+  students: boolean;
+  auction: boolean;
+  feesApply: boolean;
+  feesApplyText: null | string;
+  displaySize: string;
+  showOnMap: boolean;
+  propertyUrl: string;
+  contactUrl: string;
+  staticMapUrl: null | string;
+  channel: string;
+  firstVisibleDate: Date;
+  keywords: any[];
+  keywordMatchType: string;
+  saved: boolean;
+  hidden: boolean;
+  onlineViewingsAvailable: boolean;
+  lozengeModel: LozengeModel;
+  hasBrandPlus: boolean;
+  displayStatus: string;
+  enquiredTimestamp: null;
+  propertyTypeFullDescription: string;
+  isRecent: boolean;
+  enhancedListing: boolean;
+  heading: string;
+  formattedBranchName: string;
+  formattedDistance: string;
+  addedOrReduced: string;
+}
+
+export interface Customer {
+  branchId: number | null;
+  brandPlusLogoURI: null | string;
+  contactTelephone: null | string;
+  branchDisplayName: null | string;
+  branchName: null | string;
+  brandTradingName: null | string;
+  branchLandingPageUrl: null | string;
+  development: boolean;
+  showReducedProperties: boolean;
+  commercial: boolean;
+  showOnMap: boolean;
+  enhancedListing: boolean;
+  developmentContent: null;
+  buildToRent: boolean;
+  buildToRentBenefits: any[] | null;
+  brandPlusLogoUrl: string;
+}
+
+export interface ListingUpdate {
+  listingUpdateReason: null | string;
+  listingUpdateDate: Date;
+}
+
+export interface PropertySchemaLocation {
+  latitude: number | null;
+  longitude: number | null;
+}
+
+export interface LozengeModel {
+  matchingLozenges: MatchingLozenge[];
+}
+
+export interface MatchingLozenge {
+  type: string;
+  priority: number;
+}
+
+export interface Price {
+  amount: number;
+  frequency: string;
+  currencyCode: string;
+  displayPrices: DisplayPrice[];
+}
+
+export interface DisplayPrice {
+  displayPrice: string;
+  displayPriceQualifier: string;
+}
+
+export interface ProductLabel {
+  productLabelText: null | string;
+  spotlightLabel: boolean;
+}
+
+export interface PropertyImages {
+  images: Image[];
+  mainImageSrc: string;
+  mainMapImageSrc: string;
+}
+
+export interface Image {
+  srcUrl: string;
+  url: string;
+  caption: null | string;
+}
+
+export interface RecentSearchModel {
+  linkDisplayText: string;
+  titleDisplayText: string;
+  searchCriteriaMobile: string;
+  createDate: number;
+  locationIdentifierAndSearchType: string;
+}
+
+export interface SearchParameters {
+  locationIdentifier: string;
+  minBedrooms: string;
+  maxPrice: string;
+  numberOfPropertiesPerPage: string;
+  radius: string;
+  sortType: string;
+  index: string;
+  propertyTypes: any[];
+  viewType: string;
+  mustHave: any[];
+  dontShow: any[];
+  furnishTypes: any[];
+  channel: string;
+  areaSizeUnit: string;
+  currencyCode: string;
+  keywords: any[];
+}
+
+export interface SEOModel {
+  canonicalUrl: string;
+  metaRobots: string;
+}
+
+export interface SidebarModel {
+  soldHousePricesLinks: null;
+  relatedHouseSearches: null;
+  relatedFlatSearches: null;
+  relatedPopularSearches: null;
+  relatedRegionsSearches: null;
+  channelSwitchLink: null;
+  relatedStudentLinks: null;
+  branchMPU: null;
+  countryGuideMPU: null;
+  suggestedLinks: null;
+}
+
+// Converts JSON strings to/from your types
+export class Convert {
+  public static toSearchResult(json: string): SearchResult {
+    return JSON.parse(json);
+  }
+
+  public static searchResultToJson(value: SearchResult): string {
+    return JSON.stringify(value);
+  }
+}
