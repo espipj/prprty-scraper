@@ -6,7 +6,6 @@ import { Property, SearchResult } from './types'
 import { Update, Message } from 'telegraf/typings/core/types/typegram'
 
 const bot = new Telegraf(process.env.TG_BOT_TKN || '')
-const chatId = process.env.TG_CHAT || ''
 const appScriptId = process.env.APPS_SCRIPT_ID
 
 const getAdData = (id: string | number) => {
@@ -38,22 +37,18 @@ const scrapPropertyData = async (code: number | string) => {
     `[FULL AD](https://www.rightmove.co.uk/properties/${
       propertyData.propertyData.id
     })   ${'`'}/pp ${propertyData.propertyData.id}${'`'}`
-  textMessage = textMessage
-    .replace('-', '\\-')
-    .replace('|', '\\|')
-    .replace('+', '\\+')
 
   const imagesArray = propertyData.propertyData.images.map((v, idx) => ({
     media: v.url,
     caption: idx === 0 ? textMessage : null,
-    parse_mode: 'MarkdownV2',
+    parse_mode: 'Markdown',
     type: 'photo',
   }))
   imagesArray.push({
     media: propertyData.propertyData.staticMapImgUrls.staticMapImgUrlMobile,
     type: 'photo',
     caption: null,
-    parse_mode: 'MarkdownV2',
+    parse_mode: 'Markdown',
   })
   const location = {
     latitude: propertyData.propertyData.location.latitude,
