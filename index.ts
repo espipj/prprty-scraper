@@ -38,7 +38,10 @@ const scrapPropertyData = async (code: number | string) => {
     `[FULL AD](https://www.rightmove.co.uk/properties/${
       propertyData.propertyData.id
     })   ${'`'}/pp ${propertyData.propertyData.id}${'`'}`
-  textMessage = textMessage.replace('-', '\\-').replace('|', '\\|')
+  textMessage = textMessage
+    .replace('-', '\\-')
+    .replace('|', '\\|')
+    .replace('+', '\\+')
 
   const imagesArray = propertyData.propertyData.images.map((v, idx) => ({
     media: v.url,
