@@ -133,7 +133,7 @@ const scrapFromMessage = async ({ ctx }: { ctx: ctxType }) => {
       )
       pages = propertyData.pagination.total
       //propertyData.properties.length
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < propertyData.properties.length; i++) {
         if (data[propertyData.properties[i].id]) {
           console.log('Was already here: ' + propertyData.properties[i].id)
           continue
@@ -170,7 +170,8 @@ const scrapFromId = async ({ userId }: { userId: string }) => {
     `https://script.google.com/macros/s/${appScriptId}/exec?userId=${userId}`
   )
   let pages = 1
-  for (let p = 0; p < 1; p++) {
+  let sent = false
+  for (let p = 0; p < pages && !sent; p++) {
     const srchURL = `https://www.rightmove.co.uk/property-for-sale/find.html?locationIdentifier=USERDEFINEDAREA%5E%7B%22id%22%3A%226270618%22%7D&minBedrooms=2&maxPrice=350000&index=${
       p * 24
     }`
@@ -188,7 +189,7 @@ const scrapFromId = async ({ userId }: { userId: string }) => {
       )
       pages = propertyData.pagination.total
       //propertyData.properties.length
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < propertyData.properties.length; i++) {
         if (data[propertyData.properties[i].id]) {
           console.log('Was already here: ' + propertyData.properties[i].id)
           continue
@@ -218,6 +219,8 @@ const scrapFromId = async ({ userId }: { userId: string }) => {
           },
           { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
         )
+        sent = true
+        break
       }
     } catch (e) {
       console.log(e)
