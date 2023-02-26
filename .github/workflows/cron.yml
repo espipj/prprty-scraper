@@ -1,0 +1,20 @@
+name: CronJob
+
+on:
+  push:
+  schedule:
+    - cron: '* 0/15 * ? * * *'
+
+jobs:
+  scrap-exec:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+      - name: Install dependencies
+        run: yarn
+      - name: Run the script
+        run: yarn ts-node index.ts ${{ secrets.TG_CHAT_ID }}
