@@ -8,6 +8,9 @@ on:
 jobs:
   scrap-exec:
     runs-on: ubuntu-latest
+    env:
+      TG_BOT_TKN: ${{ secrets.TG_BOT_TKN }}
+      APPS_SCRIPT_ID: ${{ secrets.APPS_SCRIPT_ID }}
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js
