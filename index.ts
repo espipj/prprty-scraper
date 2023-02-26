@@ -222,7 +222,7 @@ const scrapFromId = async ({ userId }: { userId: string }) => {
         break
       }
     } catch (e) {
-      console.log(e)
+      throw e
     }
   }
 }
