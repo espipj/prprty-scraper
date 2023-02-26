@@ -3,7 +3,7 @@ name: CronJob
 on:
   push:
   schedule:
-    - cron: '* 0/15 * ? * * *'
+    - cron: '0/15 * ? * * *'
 
 jobs:
   scrap-exec:
