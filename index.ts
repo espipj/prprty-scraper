@@ -1,11 +1,14 @@
 require('dotenv').config()
-import { Context, NarrowedContext, Telegraf } from 'telegraf'
+import { Context, NarrowedContext, Telegraf, TelegramError } from 'telegraf'
+import { telegrafThrottler } from 'telegraf-throttler'
 import { load } from 'cheerio'
 import axios from 'axios'
 import { Property, SearchResult } from './types'
 import { Update, Message } from 'telegraf/typings/core/types/typegram'
 
 const bot = new Telegraf(process.env.TG_BOT_TKN || '')
+const throttler = telegrafThrottler()
+bot.use(throttler)
 const appScriptId = process.env.APPS_SCRIPT_ID
 
 const getAdData = (id: string | number) => {

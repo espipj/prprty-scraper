@@ -6,6 +6,7 @@ specifiers:
   cheerio: 1.0.0-rc.12
   dotenv: ^16.0.3
   telegraf: ^4.11.2
+  telegraf-throttler: ^0.6.0
   ts-node: ^10.9.1
   typescript: ^4.9.4
 
@@ -14,6 +15,7 @@ dependencies:
   cheerio: 1.0.0-rc.12
   dotenv: 16.0.3
   telegraf: 4.11.2
+  telegraf-throttler: 0.6.0_telegraf@4.11.2
 
 devDependencies:
   '@types/node': 18.11.18
@@ -103,6 +105,10 @@ packages:
 
   /boolbase/1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
+    dev: false
+
+  /bottleneck/2.19.5:
+    resolution: {integrity: sha512-VHiNCbI1lKdl44tGrhNfU3lup0Tj/ZBMJB5/2ZbNXRCPuRCO7ed2mgcK4r17y+KB2EfuYuRaVlwNbAeaWGSpbw==}
     dev: false
 
   /buffer-alloc-unsafe/1.1.0:
@@ -336,6 +342,15 @@ packages:
   /sandwich-stream/2.0.2:
     resolution: {integrity: sha512-jLYV0DORrzY3xaz/S9ydJL6Iz7essZeAfnAavsJ+zsJGZ1MOnsS52yRjU3uF3pJa/lla7+wisp//fxOwOH8SKQ==}
     engines: {node: '>= 0.10'}
+    dev: false
+
+  /telegraf-throttler/0.6.0_telegraf@4.11.2:
+    resolution: {integrity: sha512-RgoS1lJFdEgIL2WBf9k5nDA9lVTXNjIVRalTwIv81yg7fj0ZmYAvqAtsQRHHUqKS2f+fXuWuZWG0Yv8NFvHQRw==}
+    peerDependencies:
+      telegraf: ^4.3.0
+    dependencies:
+      bottleneck: 2.19.5
+      telegraf: 4.11.2
     dev: false
 
   /telegraf/4.11.2:
