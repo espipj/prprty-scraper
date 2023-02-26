@@ -99,7 +99,7 @@ bot.command(['property', 'pp'], async (ctx) => {
 })
 
 bot.command(['ll', 'lastlistings'], async (ctx) => {
-  scrap(ctx)
+  scrapFromMessage({ ctx })
 })
 
 type ctxType = NarrowedContext<
@@ -110,7 +110,7 @@ type ctxType = NarrowedContext<
   }
 >
 
-const scrap = async (ctx: ctxType) => {
+const scrapFromMessage = async ({ ctx }: { ctx: ctxType }) => {
   const { data } = await axios.get(
     `https://script.google.com/macros/s/${appScriptId}/exec?userId=${ctx.from.id}`
   )
@@ -127,7 +127,6 @@ const scrap = async (ctx: ctxType) => {
       const html = response.data
       const $ = load(html)
 
-      console.log(response.status)
       const scriptData = $('body > script:nth-child(11)').text()
       const propertyData: SearchResult = JSON.parse(
         scriptData.slice(19, scriptData.length)
@@ -136,8 +135,7 @@ const scrap = async (ctx: ctxType) => {
       //propertyData.properties.length
       for (let i = 0; i < 3; i++) {
         if (data[propertyData.properties[i].id]) {
-          console.log('Was already here')
-          console.log(propertyData.properties[i].id)
+          console.log('Was already here: ' + propertyData.properties[i].id)
           continue
         }
         const ppty = await scrapPropertyData(propertyData.properties[i].id)
@@ -167,7 +165,71 @@ const scrap = async (ctx: ctxType) => {
   }
 }
 
-bot.launch()
+const scrapFromId = async ({ userId }: { userId: string }) => {
+  const { data } = await axios.get(
+    `https://script.google.com/macros/s/${appScriptId}/exec?userId=${userId}`
+  )
+  let pages = 1
+  for (let p = 0; p < 1; p++) {
+    const srchURL = `https://www.rightmove.co.uk/property-for-sale/find.html?locationIdentifier=USERDEFINEDAREA%5E%7B%22id%22%3A%226270618%22%7D&minBedrooms=2&maxPrice=350000&index=${
+      p * 24
+    }`
+    console.log(srchURL)
+
+    try {
+      const response = await axios.get(srchURL)
+
+      const html = response.data
+      const $ = load(html)
+
+      const scriptData = $('body > script:nth-child(11)').text()
+      const propertyData: SearchResult = JSON.parse(
+        scriptData.slice(19, scriptData.length)
+      )
+      pages = propertyData.pagination.total
+      //propertyData.properties.length
+      for (let i = 0; i < 3; i++) {
+        if (data[propertyData.properties[i].id]) {
+          console.log('Was already here: ' + propertyData.properties[i].id)
+          continue
+        }
+        const ppty = await scrapPropertyData(propertyData.properties[i].id)
+        if (!ppty) continue
+        console.log(ppty.textMessage)
+        console.log({ id: propertyData.properties[i].id, userId: userId })
+
+        console.log(ppty)
+        await bot.telegram.sendMediaGroup(
+          userId,
+          /* @ts-ignore */
+          ppty?.imagesArray.slice(0, 10)
+        )
+        bot.telegram.sendMessage
+        await bot.telegram.sendLocation(
+          userId,
+          ppty?.location.latitude,
+          ppty.location.longitude
+        )
+        axios.post(
+          `https://script.google.com/macros/s/${appScriptId}/exec`,
+          {
+            id: propertyData.properties[i].id.toString(),
+            userId: userId,
+          },
+          { headers: { 'content-type': 'application/x-www-form-urlencoded' } }
+        )
+      }
+    } catch (e) {
+      console.log(e)
+    }
+  }
+}
+console.log(process.argv)
+if (process.argv.length < 3) {
+  bot.launch()
+} else {
+  scrapFromId({ userId: process.argv[2] })
+}
 
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'))
