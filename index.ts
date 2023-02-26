@@ -208,6 +208,7 @@ const scrapFromId = async ({ userId }: { userId: string }) => {
           /* @ts-ignore */
           ppty?.imagesArray.slice(0, 10)
         )
+        await new Promise((resolve) => setTimeout(resolve, 50000))
         await bot.telegram.sendLocation(
           userId,
           ppty?.location.latitude,
