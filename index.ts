@@ -175,13 +175,17 @@ const scrapFromId = async ({ userId }: { userId: string }) => {
   let pages = 1
   let sent = false
   for (let p = 0; p < pages && !sent; p++) {
-    const srchURL = `https://www.rightmove.co.uk/property-for-sale/find.html?locationIdentifier=USERDEFINEDAREA%5E%7B%22id%22%253A8476459%7D&minBedrooms=2&maxPrice=350000&index=${
-      p * 24
-    }`
-    console.log(srchURL)
+    const srchURL = `https://www.rightmove.co.uk/property-for-sale/find.html`
 
     try {
-      const response = await axios.get(srchURL)
+      const response = await axios.get(srchURL, {
+        params: {
+          locationIdentifier: `USERDEFINEDAREA^{"id":"8476459"}`,
+          minBedrooms: 2,
+          maxPrice: 350000,
+          index: p * 24,
+        },
+      })
 
       const html = response.data
       const $ = load(html)
