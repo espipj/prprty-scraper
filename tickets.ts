@@ -15,7 +15,7 @@ export const navWim = async (bot: Telegraf<Context<Update>>, id: string) => {
   if (!userName || !pswd) return new Error('No login info detected')
   /* Initiate the Puppeteer browser */
   const browser = await puppeteer.launch({
-    headless: false,
+    // headless: false,
     args: [
       '--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36',
     ],
