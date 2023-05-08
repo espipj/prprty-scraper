@@ -1,9 +1,18 @@
 import puppeteer, { Page } from 'puppeteer'
+import { wimData } from './types'
+import { Context, Telegraf } from 'telegraf'
+import { Update } from 'telegraf/typings/core/types/typegram'
+
+const WIM_LOGIN = 'https://www.wimbledon.com/en_GB/mywimbledon/login'
 const WIM_URL = (wim_id: number) =>
   `https://ticketsale.wimbledon.com/secured/selection/event/seat?perfId=${wim_id}`
 const initialID = 101760903220
 
-export const navWim = async () => {
+const userName = process.env.WB_USER || ''
+const pswd = process.env.WB_PSWD || ''
+
+export const navWim = async (bot: Telegraf<Context<Update>>, id: string) => {
+  if (!userName || !pswd) return new Error('No login info detected')
   /* Initiate the Puppeteer browser */
   const browser = await puppeteer.launch({
     headless: false,
@@ -16,23 +25,26 @@ export const navWim = async () => {
 
   /* Go to the IMDB Movie page and wait for it to load */
   //   await page.goto(WIM_URL(101760903220), { waitUntil: 'networkidle0' })
-  await page.goto('https://www.wimbledon.com/en_GB/mywimbledon/login', {
+  await page.goto(WIM_LOGIN, {
     waitUntil: 'networkidle0',
   })
   // Fill in the login form
-  await page.type('#loginID', '')
-  await page.type('#password', '')
+  await page.type('#loginID', userName)
+  await page.type('#password', pswd)
   await page.focus('#password')
   await page.keyboard.press('Enter')
   await page.waitForNavigation()
 
-  for (let i = 101760903220; i < 101760903266; i++) {
-    console.log(await visitDay(page, i))
+  for (let i = initialID; i < 101760903266; i++) {
+    const resData = await visitDay(page, i)
+    if (resData) {
+      sendToTelegram(resData, id, bot)
+    }
   }
+  browser.close()
 }
 
-const visitDay = async (page: Page, id: number) => {
-  console.log(id)
+const visitDay = async (page: Page, id: number): Promise<wimData | null> => {
   await page.goto(WIM_URL(id), {
     waitUntil: 'networkidle0',
   })
@@ -55,4 +67,17 @@ const visitDay = async (page: Page, id: number) => {
       .trim(),
     url: WIM_URL(id),
   }
+}
+
+const sendToTelegram = (
+  resData: wimData,
+  chatId: string,
+  bot: Telegraf<Context<Update>>
+) => {
+  console.log(resData)
+  bot.telegram.sendMessage(
+    chatId,
+    `Tickets available!\n${resData.title}\nDate: ${resData.day}\nBuy them [here](${resData.url})`,
+    { parse_mode: 'Markdown' }
+  )
 }
