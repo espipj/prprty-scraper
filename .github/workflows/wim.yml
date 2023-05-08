@@ -11,6 +11,7 @@ jobs:
     env:
       WB_USER: ${{ secrets.WB_USER }}
       WB_PSWD: ${{ secrets.WB_PSWD }}
+      TG_BOT_TKN: ${{ secrets.TG_BOT_TKN }}
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js
@@ -42,7 +43,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Run the script
-        run: pnpm ts-node index.ts ${{ secrets.TG_CHAT_ID }} wim
+        run: pnpm ts-node index.ts ${{ secrets.TG_PERSCHAT_ID }} wim
         env:
           PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
