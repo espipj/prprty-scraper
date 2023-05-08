@@ -5,6 +5,7 @@ import { load } from 'cheerio'
 import axios from 'axios'
 import { Property, SearchResult } from './types'
 import { Update, Message } from 'telegraf/typings/core/types/typegram'
+import { navWim } from './tickets'
 
 const bot = new Telegraf(process.env.TG_BOT_TKN || '')
 const throttler = telegrafThrottler()
@@ -237,8 +238,13 @@ const scrapFromId = async ({ userId }: { userId: string }) => {
 console.log(process.argv)
 if (process.argv.length < 3) {
   bot.launch()
-} else {
+}
+
+if (process.argv.length === 3) {
   scrapFromId({ userId: process.argv[2] })
+}
+if (process.argv.length === 4) {
+  navWim(bot, process.argv[2])
 }
 
 // Enable graceful stop
