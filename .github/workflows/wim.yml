@@ -6,7 +6,7 @@ on:
     - cron: '0/5 * * * *'
 
 jobs:
-  scrap-exec:
+  scrap:
     runs-on: ubuntu-latest
     env:
       WB_USER: ${{ secrets.WB_USER }}
