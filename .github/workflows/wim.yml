@@ -1,0 +1,41 @@
+name: WimTickets
+
+on:
+  push:
+  schedule:
+    - cron: '0/5 * * * *'
+
+jobs:
+  scrap-exec:
+    runs-on: ubuntu-latest
+    env:
+      WB_USER: ${{ secrets.WB_USER }}
+      WB_PSWD: ${{ secrets.WB_PSWD }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 7
+          run_install: false
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      - name: Install dependencies
+        run: pnpm install
+      - name: Run the script
+        run: pnpm ts-node index.ts ${{ secrets.TG_CHAT_ID }} wim
