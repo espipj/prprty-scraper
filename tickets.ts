@@ -4,6 +4,7 @@ import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
 
 const WIM_LOGIN = 'https://www.wimbledon.com/en_GB/mywimbledon/login'
+const HOME_TICKETS = 'https://ticketsale.wimbledon.com/secured/content#'
 const WIM_URL = (wim_id: number) =>
   `https://ticketsale.wimbledon.com/secured/selection/event/seat?perfId=${wim_id}`
 const initialID = 101760903220
@@ -34,11 +35,27 @@ export const navWim = async (bot: Telegraf<Context<Update>>, id: string) => {
   await page.focus('#password')
   await page.keyboard.press('Enter')
   await page.waitForNavigation()
+  await page.goto(HOME_TICKETS, {
+    waitUntil: 'networkidle0',
+  })
 
-  for (let i = initialID; i < 101760903266; i++) {
-    const resData = await visitDay(page, i)
-    if (resData) {
-      sendToTelegram(resData, id, bot)
+  await page.waitForSelector('.stx-ProductBox')
+  const products = await page.$$('.stx-ProductBox')
+  for (let index = 0; index < products.length; index++) {
+    const product = products[index]
+    const prodEl = await product.asElement()
+    const soldout = await prodEl.$$('.stx-SoldOutIndicator')
+    console.log(soldout)
+    if (!soldout.length) {
+      bot.telegram.sendMessage(
+        id,
+        `Some tickets available [here](${HOME_TICKETS})`,
+        { parse_mode: 'Markdown' }
+      )
+      //   const resData = await visitDayFromIndex(page, product)
+      //   if (resData) {
+      //     sendToTelegram(resData, id, bot)
+      //   }
     }
   }
   browser.close()
