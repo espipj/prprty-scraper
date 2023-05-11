@@ -85,14 +85,51 @@ const visitDay = async (page: Page, id: number): Promise<wimData | null> => {
     url: WIM_URL(id),
   }
 }
+const courtNames = ['Centre', 'No.1']
+const visitDayFromIndex = async (
+  page: Page,
+  element: ElementHandle
+): Promise<wimData | null> => {
+  await element.click()
+  await page.waitForNavigation()
 
-const sendToTelegram = (
+  try {
+    await page.waitForSelector('.category_unavailable_overlay', {
+      timeout: 1000,
+    })
+    console.log('found selector sold out')
+  } catch (error) {
+    console.log("Couldn't find sold out selector")
+  }
+  const title = await page.$('.semantic-no-styling-no-display.title')
+  const titleText = (await title?.evaluate((el) => el.textContent))
+    ?.replace(/[\n\t]/g, '')
+    .trim()
+  const unavSel = await page.$$('.category_unavailable_overlay')
+  if (
+    (unavSel.length >= 2 &&
+      courtNames.some((value) => titleText?.includes(value))) ||
+    unavSel.length >= 1
+  ) {
+    return null
+  }
+  const day = await page.$('.unique .day')
+  return {
+    title: titleText,
+    day: (await day?.evaluate((el) => el.textContent))
+      ?.replace(/[\n\t]/g, '')
+      .trim(),
+    url: page.url(),
+  }
+}
+
+const sendToTelegram = async (
   resData: wimData,
   chatId: string,
   bot: Telegraf<Context<Update>>
 ) => {
   console.log(resData)
-  bot.telegram.sendMessage(
+  await bot.telegram.sendMessage(
     chatId,
     `Tickets available!\n${resData.title}\nDate: ${resData.day}\nBuy them [here](${resData.url})`,
     { parse_mode: 'Markdown' }
