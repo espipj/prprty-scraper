@@ -47,15 +47,11 @@ export const navWim = async (bot: Telegraf<Context<Update>>, id: string) => {
     const soldout = await prodEl.$$('.stx-SoldOutIndicator')
     console.log(soldout)
     if (!soldout.length) {
-      bot.telegram.sendMessage(
-        id,
-        `Some tickets available [here](${HOME_TICKETS})`,
-        { parse_mode: 'Markdown' }
-      )
-      //   const resData = await visitDayFromIndex(page, product)
-      //   if (resData) {
-      //     sendToTelegram(resData, id, bot)
-      //   }
+      const resData = await visitDayFromIndex(page, product)
+      console.log({ resData })
+      if (resData) {
+        await sendToTelegram(resData, id, bot)
+      }
     }
   }
   browser.close()
