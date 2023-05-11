@@ -1,4 +1,4 @@
-import puppeteer, { Page } from 'puppeteer'
+import puppeteer, { Page, ElementHandle } from 'puppeteer'
 import { wimData } from './types'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
