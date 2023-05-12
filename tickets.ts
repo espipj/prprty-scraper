@@ -1,4 +1,4 @@
-import puppeteer, { Page, ElementHandle } from 'puppeteer'
+import puppeteer, { Page } from 'puppeteer'
 import { wimData } from './types'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
@@ -40,18 +40,16 @@ export const navWim = async (bot: Telegraf<Context<Update>>, id: string) => {
   })
 
   await page.waitForSelector('.stx-ProductBox')
-  const products = await page.$$('.stx-ProductBox')
-  for (let index = 0; index < products.length; index++) {
-    const product = products[index]
-    const prodEl = await product.asElement()
-    const soldout = await prodEl.$$('.stx-SoldOutIndicator')
-    console.log(soldout)
-    if (!soldout.length) {
-      const resData = await visitDayFromIndex(page, product)
+  const a = await page.$$('.stx-ProductCardMainContent a')
+
+  const links = a.map(async (a) => {
+    return await a.evaluate((a) => a.href)
+  })
+  for (let idx = 0; idx < links.length; idx++) {
+    const resData = await visitDayFromIndex(page, await links[idx])
       console.log({ resData })
       if (resData) {
         await sendToTelegram(resData, id, bot)
-      }
     }
   }
   browser.close()
@@ -84,10 +82,11 @@ const visitDay = async (page: Page, id: number): Promise<wimData | null> => {
 const courtNames = ['Centre', 'No.1']
 const visitDayFromIndex = async (
   page: Page,
-  element: ElementHandle
+  url: string
 ): Promise<wimData | null> => {
-  await element.click()
-  await page.waitForNavigation()
+  await page.goto(url, {
+    waitUntil: 'networkidle0',
+  })
 
   try {
     await page.waitForSelector('.category_unavailable_overlay', {
@@ -115,7 +114,7 @@ const visitDayFromIndex = async (
     day: (await day?.evaluate((el) => el.textContent))
       ?.replace(/[\n\t]/g, '')
       .trim(),
-    url: page.url(),
+    url,
   }
 }
 
