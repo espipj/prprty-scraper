@@ -185,6 +185,7 @@ const scrapFromId = async ({ userId }: { userId: string }) => {
           minBedrooms: 2,
           maxPrice: 350000,
           index: p * 24,
+          sortType: 6,
         },
       })
 
@@ -230,6 +231,7 @@ const scrapFromId = async ({ userId }: { userId: string }) => {
         sent = true
         break
       }
+      await new Promise((resolve) => setTimeout(resolve, 50000))
     } catch (e) {
       throw e
     }
