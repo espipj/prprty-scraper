@@ -25,7 +25,6 @@ const getAdData = (id: string | number) => {
       )
       return propertyData
     })
-    .catch((e) => console.log(e))
 }
 
 const scrapPropertyData = async (code: number | string) => {
