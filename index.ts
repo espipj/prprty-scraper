@@ -14,7 +14,13 @@ const appScriptId = process.env.APPS_SCRIPT_ID
 
 const getAdData = (id: string | number) => {
   return axios
-    .get(`https://www.rightmove.co.uk/properties/${id}#/`)
+    .get(`https://www.rightmove.co.uk/properties/${id}#/?channel=RES_BUY`, {
+      responseType: 'document',
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/117.0',
+      },
+    })
     .then((response): Property => {
       const html = response.data
       const $ = load(html)
@@ -230,7 +236,6 @@ const scrapFromId = async ({ userId }: { userId: string }) => {
         sent = true
         break
       }
-      await new Promise((resolve) => setTimeout(resolve, 50000))
     } catch (e) {
       throw e
     }
