@@ -1,5 +1,5 @@
 require('dotenv').config()
-import { Context, NarrowedContext, Telegraf, TelegramError } from 'telegraf'
+import { Context, NarrowedContext, Telegraf } from 'telegraf'
 import { telegrafThrottler } from 'telegraf-throttler'
 import { load } from 'cheerio'
 import axios from 'axios'
@@ -39,14 +39,11 @@ const scrapPropertyData = async (code: number | string) => {
   let textMessage =
     `${propertyData.propertyData.address.displayAddress} \n` +
     `${propertyData.propertyData.prices.primaryPrice}\n` +
-    `Key Features:\n ${propertyData.propertyData.keyFeatures.map(
-      (v) => `${v}\n`
-    )}` +
+    `Key Features:\n- ${propertyData.propertyData.keyFeatures.join('\n- ')}` +
     `Tenure: ${propertyData.propertyData.tenure.tenureType}\n` +
     `[FULL AD](https://www.rightmove.co.uk/properties/${
       propertyData.propertyData.id
     })   ${'`'}/pp ${propertyData.propertyData.id}${'`'}`
-
   const imagesArray = propertyData.propertyData.images.map((v, idx) => ({
     media: v.url,
     caption: idx === 0 ? textMessage : null,
