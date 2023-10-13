@@ -25,7 +25,7 @@ const getAdData = (id: string | number) => {
       const html = response.data
       const $ = load(html)
 
-      const scriptData = $('body > script:nth-child(12)').text()
+      const scriptData = $('body > script:nth-child(13)').text()
       const propertyData: Property = JSON.parse(
         scriptData.slice(25, scriptData.length)
       )
