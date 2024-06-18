@@ -26,9 +26,8 @@ const getAdData = (id: string | number) => {
       const $ = load(html)
 
       const scriptData = $('body > script:nth-child(13)').text()
-      const propertyData: Property = JSON.parse(
-        scriptData.slice(25, scriptData.length)
-      )
+      const idxRemove = scriptData.indexOf('window.adInfo')
+      const propertyData: Property = JSON.parse(scriptData.slice(25, idxRemove))
       return propertyData
     })
 }
