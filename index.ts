@@ -25,8 +25,12 @@ const getAdData = (id: string | number) => {
       const html = response.data
       const $ = load(html)
 
-      const scriptData = $('body > script:nth-child(13)').text()
-      const idxRemove = scriptData.indexOf('window.adInfo')
+      let scriptData = $('body > script:nth-child(13)').text()
+      for (let index = 0; index < 25; index++) {
+        scriptData = $(`body > script:nth-child(${index})`).text()
+        if (scriptData.includes('window.PAGE_MODEL')) break
+      }
+      const idxRemove = scriptData.indexOf('window.adInfo') || scriptData.length
       const propertyData: Property = JSON.parse(scriptData.slice(25, idxRemove))
       return propertyData
     })
