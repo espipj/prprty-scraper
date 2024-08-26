@@ -25,7 +25,7 @@ const getAdData = (id: string | number) => {
       const html = response.data
       const $ = load(html)
 
-      const scriptData = $('body > script:nth-child(14)').text()
+      const scriptData = $('body > script:nth-child(13)').text()
       const idxRemove = scriptData.indexOf('window.adInfo')
       const propertyData: Property = JSON.parse(scriptData.slice(25, idxRemove))
       return propertyData
@@ -43,6 +43,7 @@ const scrapPropertyData = async (code: number | string) => {
     `[FULL AD](https://www.rightmove.co.uk/properties/${
       propertyData.propertyData.id
     })   ${'`'}/pp ${propertyData.propertyData.id}${'`'}`
+  // textMessage = textMessage.replace('*', '')
   const imagesArray = propertyData.propertyData.images.map((v, idx) => ({
     media: v.url,
     caption: idx === 0 ? textMessage : null,
