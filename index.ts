@@ -197,7 +197,11 @@ const scrapFromId = async ({ userId }: { userId: string }) => {
 
       const html = response.data
       const $ = load(html)
-      const scriptData = $('body > script:nth-child(13)').text()
+      let scriptData = $('body > script:nth-child(13)').text()
+      for (let index = 0; index < 25; index++) {
+        scriptData = $(`body > script:nth-child(${index})`).text()
+        if (scriptData.includes('window.jsonModel')) break
+      }
       const propertyData: SearchResult = JSON.parse(
         scriptData.slice(19, scriptData.length)
       )
