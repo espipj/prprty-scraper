@@ -189,9 +189,10 @@ const scrapFromId = async ({ userId }: { userId: string }) => {
         params: {
           locationIdentifier: `USERDEFINEDAREA^{"id":"8476459"}`,
           minBedrooms: 2,
-          maxPrice: 350000,
+          maxPrice: 3800000,
           index: p * 24,
           sortType: 6,
+          propertyTypes: 'bungalow,detached,semi-detached,terraced',
         },
       })
 
