@@ -42,6 +42,7 @@ const scrapPropertyData = async (code: number | string) => {
   let textMessage =
     `${propertyData.propertyData.address.displayAddress} \n` +
     `${propertyData.propertyData.prices.primaryPrice}\n` +
+    `🛌 ${propertyData.propertyData.bedrooms}  🛁 ${propertyData.propertyData.bathrooms}\n` +
     `Key Features:\n- ${propertyData.propertyData.keyFeatures.join('\n- ')}` +
     `Tenure: ${propertyData.propertyData.tenure.tenureType}\n` +
     `[FULL AD](https://www.rightmove.co.uk/properties/${
@@ -96,7 +97,8 @@ bot.command(['property', 'pp'], async (ctx) => {
     type: 'photo',
   })
   ctx.sendMessage(
-    `${propertyData.propertyData.address.displayAddress} \n${propertyData.propertyData.prices.primaryPrice}`
+    `${propertyData.propertyData.address.displayAddress} \n${propertyData.propertyData.prices.primaryPrice}\n` +
+      `🛌 ${propertyData.propertyData.bedrooms}  🛁 ${propertyData.propertyData.bathrooms}\n`
   )
   ctx.sendMediaGroup(
     /* @ts-ignore */
