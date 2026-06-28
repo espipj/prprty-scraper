@@ -2,64 +2,108 @@ import puppeteer, { Page } from 'puppeteer'
 import { wimData } from './types'
 import { Context, Telegraf } from 'telegraf'
 import { Update } from 'telegraf/typings/core/types/typegram'
+import { createInterface } from 'node:readline/promises'
+import path from 'path'
 
 const WIM_LOGIN = 'https://www.wimbledon.com/en_GB/mywimbledon/login'
 const HOME_TICKETS = 'https://ticketsale.wimbledon.com/secured/content#'
 const WIM_URL = (wim_id: number) =>
   `https://ticketsale.wimbledon.com/secured/selection/event/seat?perfId=${wim_id}`
 const initialID = 101760903220
+const NAVIGATION_TIMEOUT_MS = 90_000
+const USER_DATA_DIR = path.resolve(process.cwd(), '.puppeteer-profile')
+const SHORT_WAIT_MS = 5_000
+const HUMAN_SETTLE_MS = 2_000
 
 const userName = process.env.WB_USER || ''
 const pswd = process.env.WB_PSWD || ''
 
 export const navWim = async (bot: Telegraf<Context<Update>>, id: string) => {
   if (!userName || !pswd) return new Error('No login info detected')
+  console.log('[wim] starting navigation')
   /* Initiate the Puppeteer browser */
   const browser = await puppeteer.launch({
-    // headless: false,
+    headless: false,
+    userDataDir: USER_DATA_DIR,
     args: [
       '--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36',
     ],
-    defaultViewport: { height: 700, width: 1200 },
+    defaultViewport: null,
   })
   const page = await browser.newPage()
+  page.setDefaultNavigationTimeout(NAVIGATION_TIMEOUT_MS)
+  page.setDefaultTimeout(NAVIGATION_TIMEOUT_MS)
 
-  /* Go to the IMDB Movie page and wait for it to load */
-  //   await page.goto(WIM_URL(101760903220), { waitUntil: 'networkidle0' })
-  await page.goto(WIM_LOGIN, {
-    waitUntil: 'networkidle0',
-  })
-  // Fill in the login form
-  await page.type('#loginID', userName)
-  await page.type('#password', pswd)
-  await page.focus('#password')
-  await page.keyboard.press('Enter')
-  await page.waitForNavigation()
-  await page.goto(HOME_TICKETS, {
-    waitUntil: 'networkidle0',
-  })
+  try {
+    /* Go to the login page and wait for it to load */
+    console.log('[wim] opening login page')
+    await page.goto(WIM_LOGIN, {
+      waitUntil: 'domcontentloaded',
+      timeout: NAVIGATION_TIMEOUT_MS,
+    })
+    console.log('[wim] login page loaded, dismissing cookies if present')
+    await dismissCookies(page)
+    console.log('[wim] opening login form')
+    await openLoginForm(page)
+    console.log('[wim] login form ready')
+    await humanCheckpoint(
+      'Solve any CAPTCHA or anti-bot challenge in the browser, then press Enter to continue'
+    )
+    // Fill in the login form
+    console.log('[wim] filling credentials')
+    await fillInputValue(page, '#loginID', userName)
+    await fillInputValue(page, '#password', pswd)
+    await verifyInputValue(page, '#loginID', userName)
+    await verifyInputValue(page, '#password', pswd)
+    await page.waitForTimeout(HUMAN_SETTLE_MS)
+    console.log('[wim] credentials present in fields')
+    await page.focus('#password')
+    console.log('[wim] submitting login form')
+    await page.keyboard.press('Enter')
+    console.log('[wim] waiting for post-login navigation')
+    await page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: NAVIGATION_TIMEOUT_MS })
+    console.log('[wim] login submitted, opening tickets home')
+    await page.goto(HOME_TICKETS, {
+      waitUntil: 'domcontentloaded',
+      timeout: NAVIGATION_TIMEOUT_MS,
+    })
+    console.log('[wim] tickets home loaded')
 
-  await page.waitForSelector('.stx-ProductBox')
-  const a = await page.$$('.stx-ProductCardMainContent a')
+    console.log('[wim] waiting for ticket cards')
+    await page.waitForSelector('.stx-ProductBox', { timeout: NAVIGATION_TIMEOUT_MS })
+    console.log('[wim] ticket cards found')
+    const a = await page.$$('.stx-ProductCardMainContent a')
+    console.log(`[wim] found ${a.length} ticket links`)
 
-  const links = a.map(async (a) => {
-    return await a.evaluate((a) => a.href)
-  })
-  for (let idx = 0; idx < links.length; idx++) {
-    const resData = await visitDayFromIndex(page, await links[idx])
+    const links = a.map(async (a) => {
+      return await a.evaluate((a) => a.href)
+    })
+    for (let idx = 0; idx < links.length; idx++) {
+      console.log(`[wim] checking link ${idx + 1}/${links.length}`)
+      const resData = await visitDayFromIndex(page, await links[idx])
       console.log({ resData })
       if (resData) {
+        console.log('[wim] availability found, sending telegram message')
         await sendToTelegram(resData, id, bot)
+      }
     }
+  } catch (error) {
+    console.log('[wim] flow failed')
+    throw error
+  } finally {
+    console.log('[wim] closing browser')
+    await browser.close()
   }
-  browser.close()
 }
 
 const visitDay = async (page: Page, id: number): Promise<wimData | null> => {
   await page.goto(WIM_URL(id), {
-    waitUntil: 'networkidle0',
+    waitUntil: 'domcontentloaded',
+    timeout: NAVIGATION_TIMEOUT_MS,
   })
-  await page.waitForSelector('.semantic-no-styling-no-display.title')
+  await page.waitForSelector('.semantic-no-styling-no-display.title', {
+    timeout: NAVIGATION_TIMEOUT_MS,
+  })
   const unavSel = await page.$$('.category_unavailable_overlay')
   if (unavSel.length >= 2 && id < 101760903248) {
     return null
@@ -85,7 +129,8 @@ const visitDayFromIndex = async (
   url: string
 ): Promise<wimData | null> => {
   await page.goto(url, {
-    waitUntil: 'networkidle0',
+    waitUntil: 'domcontentloaded',
+    timeout: NAVIGATION_TIMEOUT_MS,
   })
 
   try {
@@ -129,4 +174,118 @@ const sendToTelegram = async (
     `Tickets available!\n${resData.title}\nDate: ${resData.day}\nBuy them [here](${resData.url})`,
     { parse_mode: 'Markdown' }
   )
+}
+
+const dismissCookies = async (page: Page) => {
+  console.log('[wim] looking for cookie banner')
+  try {
+    const button = await page.waitForXPath(
+      "//button[@id='onetrust-reject-all-handler']",
+      { timeout: SHORT_WAIT_MS }
+    )
+
+    if (!button) {
+      console.log('[wim] cookie banner not found')
+      return
+    }
+
+    console.log('[wim] clicking cookie reject button')
+    await button.click()
+    await page.waitForTimeout(1000)
+    console.log('[wim] cookie banner dismissed')
+  } catch (error) {
+    console.log('[wim] cookie banner not found')
+  }
+}
+
+const openLoginForm = async (page: Page) => {
+  console.log('[wim] waiting for Join / Login button')
+  await page.waitForXPath(
+    "//button[.//span[contains(normalize-space(.), 'Join / Login')]]",
+    { timeout: SHORT_WAIT_MS }
+  )
+
+  console.log('[wim] locating Join / Login button')
+  const [button] = await page.$x(
+    "//button[.//span[contains(normalize-space(.), 'Join / Login')]]"
+  )
+
+  if (!button) {
+    throw new Error('Could not find Join / Login button')
+  }
+
+  console.log('[wim] clicking Join / Login')
+  await button.click()
+
+  console.log('[wim] waiting for login form fields')
+  await page.waitForSelector('#loginID', { timeout: NAVIGATION_TIMEOUT_MS })
+  await page.waitForTimeout(1500)
+  console.log('[wim] login form fields are visible')
+}
+
+const fillInputValue = async (
+  page: Page,
+  selector: string,
+  value: string
+) => {
+  await page.$eval(
+    selector,
+    (el: any, nextValue: string) => {
+      const win = globalThis as any
+      const proto =
+        win.HTMLInputElement?.prototype || Object.getPrototypeOf(el)
+      const setter = Object.getOwnPropertyDescriptor(proto, 'value')?.set
+
+      if (setter) {
+        setter.call(el, nextValue)
+      } else {
+        el.value = nextValue
+      }
+
+      el.dispatchEvent(new win.Event('input', { bubbles: true }))
+      el.dispatchEvent(new win.Event('change', { bubbles: true }))
+      el.dispatchEvent(new win.Event('blur', { bubbles: true }))
+    },
+    value
+  )
+}
+
+const verifyInputValue = async (
+  page: Page,
+  selector: string,
+  expectedValue: string
+) => {
+  const startedAt = Date.now()
+
+  while (Date.now() - startedAt < SHORT_WAIT_MS) {
+    const currentValue = await page.$eval(
+      selector,
+      (el: any) => el.value || ''
+    )
+
+    console.log(
+      `[wim] ${selector} length=${currentValue.length} expected=${expectedValue.length}`
+    )
+
+    if (currentValue === expectedValue) {
+      return
+    }
+
+    await page.waitForTimeout(250)
+  }
+
+  throw new Error(`Timed out waiting for ${selector} to reach the expected value`)
+}
+
+const humanCheckpoint = async (message: string) => {
+  const input = createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  })
+
+  try {
+    await input.question(`\n[wim] ${message}\n`)
+  } finally {
+    input.close()
+  }
 }
